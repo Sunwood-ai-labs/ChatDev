@@ -1,0 +1,22 @@
+
+version: '3.8'
+
+services:
+  chatdev:
+    build: 
+      context: .
+    env_file: 
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - /mnt/wslg:/mnt/wslg
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      
+    entrypoint: /bin/bash
+    tty: true
+
+    # command: >
+    #   sh -c "python3 visualizer/app.py & 
+    #          python3 run.py"
