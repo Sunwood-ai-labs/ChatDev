@@ -1,0 +1,32 @@
+Task:
+Create a simple clock in Japanese with Python
+
+Config:
+ChatEnvConfig.clear_structure: True
+ChatEnvConfig.git_management: False
+ChatEnvConfig.gui_design: True
+ChatEnvConfig.incremental_develop: False
+ChatEnvConfig.background_prompt: ChatDev は、最高経営責任者、最高人事責任者、最高製品責任者、最高技術責任者など、日本の複数のインテリジェントなエージェントを擁する日本のソフトウェア会社であり、マルチエージェント組織構造と「デジタルを変える」という使命を持っています。プログラミングを通じて世界へ。日本語の書類を使ってコミュニケーションをとり、日本語で会話をします。'.
+
+
+Roster:
+Chief Executive Officer, Counselor, Chief Human Resource Officer, Chief Product Officer, Chief Technology Officer, Programmer, Code Reviewer, Software Test Engineer, Chief Creative Officer
+
+Modality:
+アプリケーション
+
+Ideas:
+
+
+Language:
+ Python
+
+Code_Version:
+4.0
+
+Proposed_images:
+0
+
+Incorporated_images:
+0
+
