@@ -16,6 +16,11 @@ import logging
 import os
 import sys
 
+import openai
+
+# openai.api_base = "http://localhost:8080/v1"
+
+
 from camel.typing import ModelType
 
 root = os.path.dirname(__file__)
@@ -91,6 +96,8 @@ args = parser.parse_args()
 # ----------------------------------------
 config_path, config_phase_path, config_role_path = get_config(args.config)
 args2type = {'GPT_3_5_TURBO': ModelType.GPT_3_5_TURBO,
+             'nekomata-7b-instruction-Q4_K_M': ModelType.NEKO_7B,
+             'nekomata-14b-instruction-Q4_K_M': ModelType.NEKO_14B,
              'GPT_4': ModelType.GPT_4,
              'GPT_4_32K': ModelType.GPT_4_32k,
              'GPT_4_TURBO': ModelType.GPT_4_TURBO,
