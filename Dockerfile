@@ -9,7 +9,7 @@ WORKDIR /app
 COPY . /app
 
 # Install necessary libraries for GUI support
-RUN apt-get update && apt-get install -y python3-tk x11-apps
+RUN apt-get update && apt-get install -y python3-tk x11-apps curl iputils-ping net-tools dnsutils
 
 # Install the project dependencies
 RUN pip install --no-cache-dir -r requirements.txt
