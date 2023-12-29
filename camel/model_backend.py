@@ -17,16 +17,12 @@ from typing import Any, Dict
 import openai
 import tiktoken
 
+import pickle
+
 from camel.typing import ModelType
 from chatdev.statistics import prompt_cost
 from chatdev.utils import log_visualize
 
-try:
-    from openai.types.chat import ChatCompletion
-
-    openai_new_api = True  # new openai api version
-except ImportError:
-    openai_new_api = False  # old openai api version
 
 import os
 
@@ -35,6 +31,17 @@ if 'BASE_URL' in os.environ:
     BASE_URL = os.environ['BASE_URL']
 else:
     BASE_URL = None
+
+try:
+    from openai.types.chat import ChatCompletion
+
+    openai_new_api = True  # new openai api version
+except ImportError:
+    openai_new_api = False  # old openai api version
+    if 'BASE_URL' in os.environ:
+        openai.api_base = BASE_URL
+    openai.api_key = OPENAI_API_KEY
+
 
 
 class ModelBackend(ABC):
@@ -65,11 +72,16 @@ class OpenAIModel(ModelBackend):
 
     def run(self, *args, **kwargs):
         string = "\n".join([message["content"] for message in kwargs["messages"]])
-        encoding = tiktoken.encoding_for_model(self.model_type.value)
+        print("------------------------self.model_type.value")
+        print(self.model_type.value)
+        encoding = tiktoken.encoding_for_model("gpt-3.5-turbo")
+        # encoding = tiktoken.encoding_for_model(self.model_type.value)
         num_prompt_tokens = len(encoding.encode(string))
         gap_between_send_receive = 15 * len(kwargs["messages"])
         num_prompt_tokens += gap_between_send_receive
 
+        print(f">>>>>> BASE_URL:{BASE_URL}")
+        print(f">>>>>> openai_new_api:{openai_new_api}")
         if openai_new_api:
             # Experimental, add base_url
             if BASE_URL:
@@ -83,6 +95,8 @@ class OpenAIModel(ModelBackend):
                 )
 
             num_max_token_map = {
+                "nekomata-7b-instruction-Q4_K_M": 4096,
+                "nekomata-14b-instruction-Q4_K_M": 8192,
                 "gpt-3.5-turbo": 4096,
                 "gpt-3.5-turbo-16k": 16384,
                 "gpt-3.5-turbo-0613": 4096,
@@ -96,10 +110,16 @@ class OpenAIModel(ModelBackend):
             num_max_token = num_max_token_map[self.model_type.value]
             num_max_completion_tokens = num_max_token - num_prompt_tokens
             self.model_config_dict['max_tokens'] = num_max_completion_tokens
-
-            response = client.chat.completions.create(*args, **kwargs, model=self.model_type.value,
-                                                      **self.model_config_dict)
-
+            # print("------------------------client.chat.completions.create")
+            # print(f"self.model_type.value:{self.model_type.value}")
+            # print(f"self.model_config_dict:{self.model_config_dict}")
+            # print(f'kwargs:{kwargs}')
+            # print(f"args:{args}")
+            # response = client.chat.completions.create(*args, **kwargs, model=self.model_type.value,
+            #                                           **self.model_config_dict)
+            response = client.chat.completions.create(model="nekomata-14b-instruction-Q4_K_M", messages=[{"role": "user", "content": "今日の調子はどう????"}])
+            # print(response)
+            # print("---------------------------------")
             cost = prompt_cost(
                 self.model_type.value,
                 num_prompt_tokens=response.usage.prompt_tokens,
@@ -115,6 +135,8 @@ class OpenAIModel(ModelBackend):
             return response
         else:
             num_max_token_map = {
+                "nekomata-7b-instruction-Q4_K_M": 8192,
+                "nekomata-14b-instruction-Q4_K_M": 8192,
                 "gpt-3.5-turbo": 4096,
                 "gpt-3.5-turbo-16k": 16384,
                 "gpt-3.5-turbo-0613": 4096,
@@ -126,6 +148,26 @@ class OpenAIModel(ModelBackend):
             num_max_token = num_max_token_map[self.model_type.value]
             num_max_completion_tokens = num_max_token - num_prompt_tokens
             self.model_config_dict['max_tokens'] = num_max_completion_tokens
+
+            # response = openai.ChatCompletion.create(*args, **kwargs, model=self.model_type.value,
+            #                                         **self.model_config_dict)
+            # print("------------------------openai.ChatCompletion.create")
+            # print(f"self.model_type.value:{self.model_type.value}")
+            # print(f"self.model_config_dict:{self.model_config_dict}")
+            # print(f'kwargs:{kwargs}')
+            # print(f"args:{args}")
+
+            # # 引数をpickleファイルに保存
+            # data_to_save = {
+            #     'args': args,
+            #     'kwargs': kwargs,
+            #     'model_type': self.model_type,
+            #     'model_config_dict': self.model_config_dict
+            # }
+
+            # with open('args.pickle', 'wb') as f:
+            #     pickle.dump(data_to_save, f)
+            #     raise
 
             response = openai.ChatCompletion.create(*args, **kwargs, model=self.model_type.value,
                                                     **self.model_config_dict)
@@ -182,6 +224,8 @@ class ModelFactory:
             ModelType.GPT_4_32k,
             ModelType.GPT_4_TURBO,
             ModelType.GPT_4_TURBO_V,
+            ModelType.NEKO_7B,
+            ModelType.NEKO_14B,
             None
         }:
             model_class = OpenAIModel

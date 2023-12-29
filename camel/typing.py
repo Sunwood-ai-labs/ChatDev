@@ -44,6 +44,8 @@ class RoleType(Enum):
 
 
 class ModelType(Enum):
+    NEKO_7B = "nekomata-7b-instruction-Q4_K_M"
+    NEKO_14B = "nekomata-14b-instruction-Q4_K_M"
     GPT_3_5_TURBO = "gpt-3.5-turbo-16k-0613"
     GPT_3_5_TURBO_NEW = "gpt-3.5-turbo-16k"
     GPT_4 = "gpt-4"
